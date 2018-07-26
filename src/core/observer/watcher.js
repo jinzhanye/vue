@@ -106,6 +106,7 @@ export default class Watcher {
     let value
     const vm = this.vm
     try {
+      // 这个getter就是expOrFn
       value = this.getter.call(vm, vm)
     } catch (e) {
       if (this.user) {

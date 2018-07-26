@@ -23,6 +23,7 @@ Vue.prototype.$mount = function (
 
   /* istanbul ignore if */
   if (el === document.body || el === document.documentElement) {
+    // Vue会将外层标签替换掉，所以不html与body标签不能作为外层标签
     process.env.NODE_ENV !== 'production' && warn(
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
     )
@@ -54,6 +55,10 @@ Vue.prototype.$mount = function (
         return this
       }
     } else if (el) {
+      // 处理这种情况
+      // Vue.component('hello-world', {
+      //   template: '#hello-world-template'
+      // })
       template = getOuterHTML(el)
     }
     if (template) {
@@ -61,7 +66,7 @@ Vue.prototype.$mount = function (
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
       }
-
+      // 通过编译将template转换成render函数
       const { render, staticRenderFns } = compileToFunctions(template, {
         shouldDecodeNewlines,
         shouldDecodeNewlinesForHref,
@@ -78,6 +83,7 @@ Vue.prototype.$mount = function (
       }
     }
   }
+  // 调用runtime/index.js中的$mount方法
   return mount.call(this, el, hydrating)
 }
 

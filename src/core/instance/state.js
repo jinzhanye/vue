@@ -111,7 +111,8 @@ function initProps (vm: Component, propsOptions: Object) {
 
 function initData (vm: Component) {
   let data = vm.$options.data
-  data = vm._data = typeof data === 'function'
+  // 内置属性_data来自data
+  data = vm._data = typeof data === 'function'// 官方推荐data为function
     ? getData(data, vm)
     : data || {}
   if (!isPlainObject(data)) {
@@ -144,6 +145,7 @@ function initData (vm: Component) {
         vm
       )
     } else if (!isReserved(key)) {
+      // vm代理data，使得在vm内可以用this访问data内的属性
       proxy(vm, `_data`, key)
     }
   }

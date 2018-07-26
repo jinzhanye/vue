@@ -136,10 +136,12 @@ export function mountComponent (
   el: ?Element,
   hydrating?: boolean
 ): Component {
+  // this.$el就是从这里来的
   vm.$el = el
   if (!vm.$options.render) {
     vm.$options.render = createEmptyVNode
     if (process.env.NODE_ENV !== 'production') {
+      // 使用了template属性但又没有使用compiler版本，就会报警告
       /* istanbul ignore if */
       if ((vm.$options.template && vm.$options.template.charAt(0) !== '#') ||
         vm.$options.el || el) {
@@ -180,6 +182,7 @@ export function mountComponent (
     }
   } else {
     updateComponent = () => {
+      // vm._render()返回一个VNode
       vm._update(vm._render(), hydrating)
     }
   }

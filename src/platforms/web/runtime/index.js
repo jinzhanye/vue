@@ -38,6 +38,7 @@ Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
 ): Component {
+  // 获取原生DOM对象
   el = el && inBrowser ? query(el) : undefined
   return mountComponent(this, el, hydrating)
 }
