@@ -43,7 +43,7 @@ const componentVNodeHooks = {
       // kept-alive components, treat as a patch
       const mountedNode: any = vnode // work around flow
       componentVNodeHooks.prepatch(mountedNode, mountedNode)
-    } else {
+    } else { // 为vnode创建相应的组件vm实例，期间调用Vue.prototype._init
       const child = vnode.componentInstance = createComponentInstanceForVnode(
         vnode,
         activeInstance
@@ -108,12 +108,13 @@ export function createComponent (
   if (isUndef(Ctor)) {
     return
   }
-
+  // context.$options._base 就是 Vue，在global-api/index中定义
   const baseCtor = context.$options._base
 
   // plain options object: turn it into a constructor
-  if (isObject(Ctor)) {
-    Ctor = baseCtor.extend(Ctor)
+  if (isObject(Ctor)) { // 普通组件
+    // Vue.extend 函数的定义，在 src/core/global-api/extend.js 中
+    Ctor = baseCtor.extend(Ctor)// 原型继承
   }
 
   // if at this stage it's not a constructor or an async component factory,

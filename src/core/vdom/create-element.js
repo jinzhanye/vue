@@ -67,7 +67,7 @@ export function _createElement (
   if (isDef(data) && isDef(data.is)) {
     tag = data.is
   }
-  if (!tag) {
+  if (!tag) {// 如果tag为空
     // in case of component :is set to falsy value
     return createEmptyVNode()
   }
@@ -100,7 +100,7 @@ export function _createElement (
   if (typeof tag === 'string') {
     let Ctor
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
-    if (config.isReservedTag(tag)) {
+    if (config.isReservedTag(tag)) { // 原生Html标签
       // platform built-in elements
       vnode = new VNode(
         config.parsePlatformTagName(tag), data, children,
