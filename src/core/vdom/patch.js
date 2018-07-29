@@ -780,7 +780,7 @@ export function createPatchFunction (backend) {
         }
       }
     }
-
+    // invokeInsertHook内部调用mounted hook
     invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch)
     return vnode.elm
   }

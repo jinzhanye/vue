@@ -63,6 +63,7 @@ export function initExtend (Vue: GlobalAPI) {
       Sub[type] = Super[type]
     })
     // enable recursive self-lookup
+    debugger
     if (name) {
       Sub.options.components[name] = Sub
     }

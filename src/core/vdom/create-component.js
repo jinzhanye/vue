@@ -112,7 +112,8 @@ export function createComponent (
   const baseCtor = context.$options._base
 
   // plain options object: turn it into a constructor
-  if (isObject(Ctor)) { // 普通组件
+  // 但是如果开发者已经调用过Vue.component注册全局组件，那么Ctor会是一个继承Vue的构造函数即VueComponent，这个继承在Vue.component实现
+  if (isObject(Ctor)) {
     // Vue.extend 函数的定义，在 src/core/global-api/extend.js 中
     Ctor = baseCtor.extend(Ctor)// 原型继承
   }

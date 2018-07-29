@@ -4,6 +4,7 @@ import { mergeOptions } from '../util/index'
 
 export function initMixin (Vue: GlobalAPI) {
   Vue.mixin = function (mixin: Object) {
+    // this.options为全局options
     this.options = mergeOptions(this.options, mixin)
     return this
   }
