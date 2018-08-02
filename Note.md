@@ -197,3 +197,62 @@ const componentVNodeHooks = {
   },
 }
 ````
+
+### Vue.extend
+global.api extend.js
+
+构造函数有cid
+
+````
+Sub.cid = cid++
+````
+
+
+### 组件注册
+
+#### 全局注册
+Vue.component(tagName, options)
+this.options[type + 's'][id] = definition 把组件构造函数到 Vue.options.components
+
+在创建 vnode 的过程中，会执行 _createElement 方法，这里有一个判断逻辑 isDef(Ctor = resolveAsset(context.$options, 'components', tag))
+resolveAsset会把Vue.options.components里的组件构造函数取出来
+
+#### 局部注册
+局部注册是非常简单的。在组件的 Vue 的实例化阶段有一个合并 option 的逻辑，之前我们也分析过，所以就把 components 合并到 vm.$options.components 上，这样我们就可以在 resolveAsset 的时候拿到这个组件的构造函数
+
+### 异步组件
+1. vue.component 注册工厂函数 
+2. 在 `createElement` 过程中调用 resolveAsset 取出该工厂函数
+3. 由于利用工厂函数没有cid这一点，判断出这是工厂函数进入创建异步组件逻辑
+4. 在 resolveAsyncComponent 中执行工厂函数，以下是 resolveAsyncComponent 的部分代码 
+5. factory.resolved 保存异步组件构造器
+6. forceRender 调用 $forceUpdate(lifecycle.js)，主要在调用渲染watcher.update()，最终调用 vm._update(vm._render(), hydrate)，又回到第2步
+7. 不过二次调用 `resolveAsyncComponent` 时，`factory.resolved` 已经有值，所以返回 `factory.resolved` 这个 VueComponent 构造函数。之后 `createElement` 要执行的步骤就像普通组件一样。
+
+````js
+if (isDef(factory.resolved)) {
+  return factory.resolved
+}
+
+const resolve = once((res: Object | Class<Component>) => {
+  // cache resolved
+  // resolved为组件export出来的对象
+  // 调用 Vue.extend 把resolved转换成一个组件的构造函数。
+  factory.resolved = ensureCtor(res, baseCtor)
+  // invoke callbacks only if this is not a synchronous resolve
+  // (async resolves are shimmed as synchronous during SSR)
+  if (!sync) {
+    forceRender()
+  }
+})
+
+const res = factory(resolve, reject)
+
+// main.js，下面的callback就是factory，最终回调 once
+Vue.component('HelloWorld', (resolve, reject) => {
+  require(['./components/HelloWorld'], (res) => {
+    resolve(res);
+  });
+});
+````
+
