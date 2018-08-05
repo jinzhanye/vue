@@ -8,7 +8,7 @@ import { def } from '../util/index'
 const arrayProto = Array.prototype
 export const arrayMethods = Object.create(arrayProto)
 
-const methodsToPatch = [
+const methodsToPatch = [// 这些方法都是可以修改数组自身的
   'push',
   'pop',
   'shift',

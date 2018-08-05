@@ -148,16 +148,24 @@ export default class Watcher {
     while (i--) {
       const dep = this.deps[i]
       if (!this.newDepIds.has(dep.id)) {
+        // 从旧deps中删除不使用的watcher
+        // 这是因为当数据改变时，Object.defineProperty.set会被调用。删除不需要的watcher，就不会做无谓的重新渲染
         dep.removeSub(this)
       }
     }
+    // 为什么要交换，而不直接在新dep覆盖旧dep，因为引用问题。而要解决引用问题，可以采用深克隆，但代价太大。交换再清空效率高
+
+    // 交换新旧depIds
     let tmp = this.depIds
     this.depIds = this.newDepIds
     this.newDepIds = tmp
+    // 清空新的depIds
     this.newDepIds.clear()
+    // 交换新旧deps
     tmp = this.deps
     this.deps = this.newDeps
     this.newDeps = tmp
+    // 清空新deps
     this.newDeps.length = 0
   }
 

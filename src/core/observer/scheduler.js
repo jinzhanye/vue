@@ -78,7 +78,7 @@ function flushSchedulerQueue () {
 
   // keep copies of post queues before resetting state
   const activatedQueue = activatedChildren.slice()
-  const updatedQueue = queue.slice()
+  const updatedQueue = queue.slice() // 拷贝队列供callUpdatedHooks使用
 
   resetSchedulerState()
 

@@ -149,6 +149,7 @@ export function defineReactive (
   const getter = property && property.get
   const setter = property && property.set
   if ((!getter || setter) && arguments.length === 2) {
+    // 把值缓存起来，供下面defineProperty的setter、getter使用
     val = obj[key]
   }
 
@@ -159,9 +160,9 @@ export function defineReactive (
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {
-        dep.depend()
-        if (childOb) {
-          childOb.dep.depend()
+        dep.depend()// val的父亲收集watcher
+        if (childOb) {// val.__ob__ 与 childOb 其实是同一个对象
+          childOb.dep.depend() // val收集watcher
           if (Array.isArray(value)) {
             dependArray(value)
           }
@@ -218,7 +219,7 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     )
     return val
   }
-  if (!ob) {
+  if (!ob) {// target 不是一个响应式的对象，则直接赋值并返回
     target[key] = val
     return val
   }

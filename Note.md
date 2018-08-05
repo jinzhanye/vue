@@ -256,3 +256,77 @@ Vue.component('HelloWorld', (resolve, reject) => {
 });
 ````
 
+## 响应式
+observe 先做一些判断，然后调用 new Observer()，并 return 这个observer
+new Observer() 调用def()获得__ob__属性，调用walk
+walk 遍历key，调用defineReactive变成setter、getter，如果当前值是对象，还会递归调用observe
+
+一个dep对应一个属性
+observer与dep是一对一关系 ，Observer构造方法 this.dep = new Dep()，defineReactive也有 const dep = new Dep()，什么用？
+watcher与dep是多对多的关系，dep.subs是一个watcher数组，一个watcher之所有对应多个dep是因为，对象中的属性(包括递归的)，都会订阅同一个渲染watcher/userWatcher
+Watcher 构造方法中 初始化dep
+````js
+  this.deps = [];
+  this.newDeps = [];
+  this.depIds = new _Set();
+  this.newDepIds = new _Set();
+````
+
+watcher强制调用get方法
+- Dep dep.depend 调用 Dep.target.addDep 也就是watcher.addDep收集依赖，也就是收集渲染watcher
+一旦dep调用notify时，就调用这个dep的subs里面的渲染watcher重新渲染
+
+#### 派发更新
+set,notify -> 遍历sub队列执行Watcher.prototype.update -> queueWatcher -> queue.push(watcher), waiting = true, 异步 nextTick(flushSchedulerQueue);
+
+flushSchedulerQueue queue.sort，遍历queue执行watcher.run(); userWatcher.get获取新值传递给callback，如果在userCallback中有值发生变化又重复notify。 渲染watcher在get中执行_update更新视图。
+
+watcher每次视图更新后，清理dep
+
+````js
+  cleanupDeps () {
+    let i = this.deps.length
+    while (i--) {
+      const dep = this.deps[i]
+      if (!this.newDepIds.has(dep.id)) {
+        // 从旧deps中删除不使用的watcher
+        // 这是因为当数据改变时，Object.defineProperty.set会被调用。删除不需要的watcher，就不会做无谓的重新渲染
+        dep.removeSub(this)
+      }
+    }
+    // 为什么要交换，而不直接在新dep覆盖旧dep，因为引用问题。而要解决引用问题，可以采用深克隆，但代价太大。交换再清空效率高
+
+    // 交换新旧depIds
+    let tmp = this.depIds
+    this.depIds = this.newDepIds
+    this.newDepIds = tmp
+    // 清空新的depIds
+    this.newDepIds.clear()
+    // 交换新旧deps
+    tmp = this.deps
+    this.deps = this.newDeps
+    this.newDeps = tmp
+    // 清空新deps
+    this.newDeps.length = 0
+  }
+````
+
+#### nextTick
+util/nextTick
+
+render.js $nextTick
+
+global-api/ Vue.nextTick
+
+按顺序收集callback，然后按顺序执行这些callback。尽量使用promise式nextTick，因为这种callback会产生一个异步callback在flushSchedulerQueue（即视图更新结束）之后执行。
+而传入回调函数式的nextTick，会严格按照代码书写代码顺序的callback执行
+
+待测试 async await
+
+#### Vue.set
+global-api.js Vue.set = set
+
+对象defineReactive，然后notify
+
+数组在原方法上做修改，然后notify。官方文档提到过，不能通过索引修改数组数据 https://cn.vuejs.org/v2/guide/list.html
+
