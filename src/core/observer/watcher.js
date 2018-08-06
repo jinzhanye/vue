@@ -217,6 +217,7 @@ export default class Watcher {
       // Deep watchers and watchers on Object/Arrays should fire even
       // when the value is the same, because the value may
       // have mutated.
+      // 一般情况下如果 computed 返回相同的值，是不会触发 notify 的，但是对象的变化难以比较，所以即使 computed 每次返回同一个对象，都会触发 notify
       isObject(value) ||
       this.deep
     ) {

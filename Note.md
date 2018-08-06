@@ -330,3 +330,161 @@ global-api.js Vue.set = set
 
 数组在原方法上做修改，然后notify。官方文档提到过，不能通过索引修改数组数据 https://cn.vuejs.org/v2/guide/list.html
 
+### computed
+
+Vue.extend 中 第一次初始化Computed
+
+````js
+if(Sub.options.computed){
+  initComputed(Sub);
+}
+
+// initComputed 调用 defineComputed
+
+export function defineComputed (
+  target: any,
+  key: string,
+  userDef: Object | Function
+) {
+  // ..... 
+  // shouldCache 为 true
+  // sharedPropertyDefinition 是一个属性描述配置对象
+  sharedPropertyDefinition.get = shouldCache
+    ? createComputedGetter(key)
+    : userDef
+  sharedPropertyDefinition.set = noop
+  
+  // .....
+  // (VueComponentConstructor.prototype,'name',{})
+  Object.defineProperty(target, key, sharedPropertyDefinition)
+}
+
+
+// 当要获取 computed 的值时，比如 this.name 或者在模版中 {{name}} ，就会触发 evaluate 求值
+function createComputedGetter (key) {
+  return function computedGetter () {
+    const watcher = this._computedWatchers && this._computedWatchers[key]
+    if (watcher) {
+      watcher.depend()
+      return watcher.evaluate()
+    }
+  }
+}
+
+
+Watcher.prototype.evaluate = function evaluate () {
+  if (this.dirty) {
+    this.value = this.get();
+    this.dirty = false;
+  }
+  return this.value
+};
+````
+
+watcher 构造函数，dirty的值与computed的值是一样的，是boolean
+
+````js
+this.dirty = this.computed
+```` 
+
+````js
+ computed: {
+    name() {
+      // 方法中每次getter，都会收集依赖，将当前watcher也就是computed watcher加入subs，以便数据改变时触发computed watcher
+      if (this.useless > 0) {
+        debugger
+        return this.firstName + ',' + this.lastName;
+      }
+
+      return 'please click change';
+    }
+  },
+````
+
+当数据发生变化时, 如果sub是 computed watcher 则执行 watcher.update() 这段代码
+````js
+ // dep 在 new Watcher 中添加
+ this.getAndInvoke(() => {
+      this.dep.notify()
+    })
+````
+
+这个dep的subs，是渲染watcher，notify使渲染watcher更新view
+
+数据变化触发 setter -> computedWatcher.getAndInvoke 检测如果新旧computed value不相同 -> computedWatcher.dep.notify -> renderWatcher update view 
+
+### user watcher
+无论是函数形式的 user watcher ，还是对象形式的 user watcher，最终都会转换成调用 Vue.prototype.$watch，之后$watch 会调用 new Watcher，这个 watcher的user字段为true
+
+核心：Watcher.prototype.get 调用 this.getter.call(xx,xx) 调用 parsePath 收集依赖！！
+
+````js
+export function parsePath (path: string): any {
+  if (bailRE.test(path)) {
+    return
+  }
+  const segments = path.split('.')
+  return function (obj) {// obj 为 vm
+    for (let i = 0; i < segments.length; i++) {
+      if (!obj) return
+      obj = obj[segments[i]] // Dep.target 是当前userWatcher，所以当访问vm.data里的数据时会将当前userWatcher收集为依赖
+    }
+    return obj
+  }
+}
+````
+
+deep 深度遍历访问对象里的所有属性，使它们在setter中收集当前userWatcher为依赖
+immediate 创建 watcher 之后立即执行
+sync 不走nextTick?
+
+## Watcher
+- computed watcher
+- render watcher
+- user watcher
+
+expOrFn: computed、render watcher 时 expOrFn 为函数 ，user 时为字符串
+````js
+if (typeof expOrFn === 'function') {
+    this.getter = expOrFn;
+  } else {
+    // xxxxx
+  }
+````
+
+只有 user watcher 的 user 字段为true ，其他两个 watcher 的 user 字段为false
+
+三种 watcher 的 getter 方法
+- user watcher
+
+````js
+export function parsePath (path: string): any {
+  if (bailRE.test(path)) {
+    return
+  }
+  const segments = path.split('.')
+  return function (obj) {// obj 为 vm
+    for (let i = 0; i < segments.length; i++) {
+      if (!obj) return
+      obj = obj[segments[i]] // Dep.target 是当前userWatcher，所以当访问vm.data里的数据时会将当前userWatcher收集为依赖
+    }
+    return obj
+  }
+}
+````
+
+- computed watcher
+
+- render watcher
+updateComponent
+
+dep 字段是 computed 字段专有的，其他两个 watcher 只有 deps、newDeps 数组
+
+nextTick 会执行 flushSchedulerQueue，遍历所有 watcher ,执行它们的 run 方法
+````js
+Watcher.prototype.run = function run () {
+  if (this.active) {
+    this.getAndInvoke(this.cb);
+  }
+};
+````
