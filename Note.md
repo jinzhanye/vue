@@ -488,3 +488,56 @@ Watcher.prototype.run = function run () {
   }
 };
 ````
+
+## update
+
+patch.js/isPatchable 寻找可挂载节点
+
+父组件 data 发生变化  -> patchVnode -> updateChildren 调用调用 pathchVnode, pathchVnode 满足一定条件调用 prepatch -> prepatch 调用 updateChildComponent 用新的props 对子组件的 旧的 props 赋值 -> 触发子组件setter从而触发子组件render watcher 更新
+
+````js
+    for (var i = 0; i < propKeys.length; i++) {
+      var key = propKeys[i];
+      var propOptions = vm.$options.props; // wtf flow?
+      props[key] = validateProp(key, propOptions, propsData, vm);
+    }
+````
+
+updateChildComponent 对以下东西进行更新
+
+````
+  vm,
+  propsData,
+  listeners,
+  parentVnode,
+  renderChildren
+````
+
+更新占位符节点,patch.js
+
+````js
+var ancestor = vnode.parent;
+````
+
+删除旧节点
+````js
+  if (isDef(parentElm)) {
+          removeVnodes(parentElm, [oldVnode], 0, 0);
+  } else if (isDef(oldVnode.tag)) {
+    invokeDestroyHook(oldVnode);
+  }
+````
+
+- 组件更新的过程核心就是新旧 vnode diff, 对新旧节点相同或不同的情况分别做不同的处理。
+- 新旧节点不同的更新流程是创建新节点 -> 更新父占位符节点 -> 删除旧节点
+- 新旧节点相同的更新流程是去获取它们的 children, 根据不同情况做不同的更新逻辑(超级多if else)
+
+其他
+
+- patchVnode 的作用就是把新的 vnodepatch 到旧的 vnode 上
+
+## 渲染 vnode 与 占位符 vnode 的区别
+渲染 vnode 没有 componentInstance 属性，而 占位符 vnode 有
+
+占位符 vnode 的 tag 为 xx + 组件名，渲染 vnode tag 为原生 tag
+
