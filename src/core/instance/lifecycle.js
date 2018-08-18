@@ -52,14 +52,14 @@ export function lifecycleMixin (Vue: Class<Component>) {
     const vm: Component = this
     const prevEl = vm.$el
     const prevVnode = vm._vnode
-    const prevActiveInstance = activeInstance
+    const prevActiveInstance = activeInstance // 保存父activeInstance
     activeInstance = vm// 设置当前vm实例为活跃实例
-    vm._vnode = vnode// 保存渲染Vnode
+    vm._vnode = vnode// 保存 render 函数返回的 vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
     if (!prevVnode) {
       // initial render
-      // __patch__在 src/platforms/web/runtime/index.js 定义
+      // __patch__在 src/platforms/web/runtime/index.js 定义，实际是在 patch.js line684
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
     } else {
       // updates

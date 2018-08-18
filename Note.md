@@ -69,11 +69,11 @@ vdom/patch.js，核心方法createEle
 createEle 做了如下事情
 
 - 当前vnode是组件，则调用createComponent，然后返回
-- 调用createChildren为孩子节点递归调用createEle
 - 当前vnode为原生标签，创建原生Dom对象，并插入到父节点
+- 将当前 vnode 作为父节点，调用createChildren为孩子节点递归调用createEle
 
 createComponent方法有两个定义
-一个在patch.js，在createElement中调用，最终调用的就是下面那个createElement产生的实例的init方法,该init方法最终调用Vue.prototype._init
+一个在patch.js，在createEle中调用，最终调用的就是下面那个createElement产生的实例的init方法,该init方法最终调用Vue.prototype._init
 一个在createElement(render调用的那个createElement)
 
 ```
@@ -536,8 +536,4 @@ var ancestor = vnode.parent;
 
 - patchVnode 的作用就是把新的 vnodepatch 到旧的 vnode 上
 
-## 渲染 vnode 与 占位符 vnode 的区别
-渲染 vnode 没有 componentInstance 属性，而 占位符 vnode 有
-
-占位符 vnode 的 tag 为 xx + 组件名，渲染 vnode tag 为原生 tag
 

@@ -24,7 +24,7 @@ export function initRender (vm: Component) {
   vm.$slots = resolveSlots(options._renderChildren, renderContext)
   vm.$scopedSlots = emptyObject
 
-  // 普通template用
+  // 将template编译成的render用
   // bind the createElement fn to this instance
   // so that we get proper render context inside it.
   // args order: tag, data, children, normalizationType, alwaysNormalize
@@ -85,7 +85,7 @@ export function renderMixin (Vue: Class<Component>) {
     let vnode
     try {
       // render(createElement) 就是从这里来的
-      // _renderProxy 在 init.js的 _init方法中定义
+      // _renderProxy 在 init.js的 _init方法中定义，也就是当前 vm 实例
       vnode = render.call(vm._renderProxy, vm.$createElement)
     } catch (e) {
       handleError(e, vm, `render`)

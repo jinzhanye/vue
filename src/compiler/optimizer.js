@@ -75,7 +75,7 @@ function markStaticRoots (node: ASTNode, isInFor: boolean) {
     // For a node to qualify as a static root, it should have children that
     // are not just static text. Otherwise the cost of hoisting out will
     // outweigh the benefits and it's better off to just always render it fresh.
-    if (node.static && node.children.length && !(
+    if (node.static && node.children.length && !(// 孩子单一纯文本
       node.children.length === 1 &&
       node.children[0].type === 3
     )) {

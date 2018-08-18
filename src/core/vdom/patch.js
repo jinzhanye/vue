@@ -164,7 +164,7 @@ export function createPatchFunction (backend) {
 
       vnode.elm = vnode.ns
         ? nodeOps.createElementNS(vnode.ns, tag)
-        : nodeOps.createElement(tag, vnode)
+        : nodeOps.createElement(tag, vnode) // 创建真实 DOM 节点
       setScope(vnode)
 
       /* istanbul ignore if */

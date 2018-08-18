@@ -20,8 +20,8 @@ import {
   simpleNormalizeChildren
 } from './helpers/index'
 
-const SIMPLE_NORMALIZE = 1
-const ALWAYS_NORMALIZE = 2
+const SIMPLE_NORMALIZE = 1 // 模版 render
+const ALWAYS_NORMALIZE = 2 // 用户手写 render
 
 // wrapper function for providing a more flexible interface
 // without getting yelled at by flow
@@ -63,7 +63,7 @@ export function _createElement (
   }
   // object syntax in v-bind
   // 动态组件is属性
-  {/*<component v-bind:is="currentView"></component>*/}
+  /*<component v-bind:is="currentView"></component>*/
   if (isDef(data) && isDef(data.is)) {
     tag = data.is
   }
@@ -91,9 +91,10 @@ export function _createElement (
     data.scopedSlots = { default: children[0] }
     children.length = 0
   }
-  if (normalizationType === ALWAYS_NORMALIZE) {
+  if (normalizationType === ALWAYS_NORMALIZE) {// 用户手写 render
+    // 当 children 只有一个节点的时候，Vue.js 从接口层面允许用户把 children 写成基础类型用来创建单个简单的文本节点
     children = normalizeChildren(children)
-  } else if (normalizationType === SIMPLE_NORMALIZE) {
+  } else if (normalizationType === SIMPLE_NORMALIZE) {// 模版 render
     children = simpleNormalizeChildren(children)
   }
   let vnode, ns

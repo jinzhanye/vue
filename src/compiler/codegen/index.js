@@ -77,7 +77,7 @@ export function genElement (el: ASTElement, state: CodegenState): string {
         children ? `,${children}` : '' // children
       })`
     }
-    // module transforms
+    // module transforms ， 对于 web 平台这个 for 用不上
     for (let i = 0; i < state.transforms.length; i++) {
       code = state.transforms[i](el, code)
     }

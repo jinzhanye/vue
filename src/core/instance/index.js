@@ -14,7 +14,7 @@ function Vue (options) {
   // _init方法为init.js的Vue.prototype._init
   this._init(options)
 }
-
+// 将原型方法挂载到 Vue 构造方法上
 initMixin(Vue)
 stateMixin(Vue)
 eventsMixin(Vue)

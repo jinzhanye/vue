@@ -23,7 +23,7 @@ Vue.prototype.$mount = function (
 
   /* istanbul ignore if */
   if (el === document.body || el === document.documentElement) {
-    // Vue会将外层标签替换掉，所以不html与body标签不能作为外层标签
+    // Vue 会将外层标签替换掉，所以不html与body标签不能作为外层标签
     process.env.NODE_ENV !== 'production' && warn(
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
     )
