@@ -528,25 +528,26 @@ export function createPatchFunction (backend) {
 
     let i
     const data = vnode.data
-    if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
+    if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {// 组件渲染 vnode 执行 prepatch 钩子
+      // prepatch 的方法，它的定义在 src/core/vdom/create-component.js
       i(oldVnode, vnode)
     }
 
     const oldCh = oldVnode.children
     const ch = vnode.children
     if (isDef(data) && isPatchable(vnode)) {
-      for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
+      for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)// 执行 update 钩子
       if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
     }
     if (isUndef(vnode.text)) {
       if (isDef(oldCh) && isDef(ch)) {
         if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
-      } else if (isDef(ch)) {
+      } else if (isDef(ch)) {// 只有新的存在，表明这是新增的 children vnode
         if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
         addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
-      } else if (isDef(oldCh)) {
+      } else if (isDef(oldCh)) {// 只有旧的存在，表明这是要删除的
         removeVnodes(elm, oldCh, 0, oldCh.length - 1)
-      } else if (isDef(oldVnode.text)) {
+      } else if (isDef(oldVnode.text)) {// isUndef(vnode.text) && isDef(oldVnode.text)，需要清空这个文本。
         nodeOps.setTextContent(elm, '')
       }
     } else if (oldVnode.text !== vnode.text) {
@@ -690,11 +691,11 @@ export function createPatchFunction (backend) {
     let isInitialPatch = false
     const insertedVnodeQueue = []
 
-    if (isUndef(oldVnode)) {
+    if (isUndef(oldVnode)) { // 组件第一次 patch
       // empty mount (likely as component), create new root element
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue)
-    } else {
+    } else { // 普通元素节点第一次 patch / 组件更新 patch
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
         // patch existing root node

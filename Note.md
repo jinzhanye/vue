@@ -493,12 +493,14 @@ Watcher.prototype.run = function run () {
 
 patch.js/isPatchable 寻找可挂载节点
 
-父组件 data 发生变化  -> patchVnode -> updateChildren 调用调用 pathchVnode, pathchVnode 满足一定条件调用 prepatch -> prepatch 调用 updateChildComponent 用新的props 对子组件的 旧的 props 赋值 -> 触发子组件setter从而触发子组件render watcher 更新
+父组件 data 发生变化  -> patchVnode -> updateChildren 递归调用 pathchVnode, pathchVnode 满足一定条件调用 prepatch -> prepatch 调用 updateChildComponent 用新的props 对子组件的 旧的 props 赋值 -> 触发子组件setter从而触发子组件render watcher 更新
 
+
+props 更新
 ````js
     for (var i = 0; i < propKeys.length; i++) {
       var key = propKeys[i];
-      var propOptions = vm.$options.props; // wtf flow?
+      var propOptions = vm.$options.props;
       props[key] = validateProp(key, propOptions, propsData, vm);
     }
 ````
@@ -517,6 +519,17 @@ updateChildComponent 对以下东西进行更新
 
 ````js
 var ancestor = vnode.parent;
+````
+
+updateChildComponent
+````js
+  vm.$options._parentVnode = parentVnode;
+  vm.$vnode = parentVnode; // update vm's placeholder node without re-render
+
+  if (vm._vnode) { // update child tree's parent
+    vm._vnode.parent = parentVnode;
+  }
+  vm.$options._renderChildren = renderChildren;
 ````
 
 删除旧节点
