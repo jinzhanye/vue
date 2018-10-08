@@ -190,7 +190,7 @@ function initComputed (vm: Component, computed: Object) {
         vm,
         getter || noop,
         noop,
-        computedWatcherOptions
+        computedWatcherOptions // { computed: true }
       )
     }
 
@@ -198,7 +198,7 @@ function initComputed (vm: Component, computed: Object) {
     // component prototype. We only need to define computed properties defined
     // at instantiation here.
     if (!(key in vm)) {
-      defineComputed(vm, key, userDef)
+      defineComputed(vm, key, userDef) // 组件的 computed， 在 Vue.extend 的 initComputed 函数已经定义，所以组件 vm 不会走这条分支
     } else if (process.env.NODE_ENV !== 'production') {
       if (key in vm.$data) {
         warn(`The computed property "${key}" is already defined in data.`, vm)
@@ -246,7 +246,7 @@ function createComputedGetter (key) {
   return function computedGetter () {
     const watcher = this._computedWatchers && this._computedWatchers[key]
     if (watcher) {
-      watcher.depend()
+      watcher.depend() // watcher.js depend
       return watcher.evaluate()
     }
   }
@@ -306,7 +306,7 @@ function createWatcher (
   if (typeof handler === 'string') {
     handler = vm[handler]
   }
-  return vm.$watch(expOrFn, handler, options)
+  return vm.$watch(expOrFn, handler, options) // Vue.prototype.$watch, core/instance/index.js 在执行 stateMixin 时定义
 }
 
 export function stateMixin (Vue: Class<Component>) {
@@ -351,7 +351,7 @@ export function stateMixin (Vue: Class<Component>) {
       cb.call(vm, watcher.value)
     }
     return function unwatchFn () {
-      watcher.teardown()
+      watcher.teardown() // 删除监听
     }
   }
 }

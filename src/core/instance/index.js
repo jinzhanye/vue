@@ -17,7 +17,7 @@ function Vue (options) {
 // 将原型方法挂载到 Vue 构造方法上
 initMixin(Vue)
 stateMixin(Vue)
-eventsMixin(Vue)
+eventsMixin(Vue) // 定义 $on、$off 等事件方法
 lifecycleMixin(Vue)
 renderMixin(Vue)
 

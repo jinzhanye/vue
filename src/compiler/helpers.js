@@ -93,10 +93,10 @@ export function addHandler (
   }
 
   let events
-  if (modifiers.native) {
+  if (modifiers.native) { // 原生事件
     delete modifiers.native
     events = el.nativeEvents || (el.nativeEvents = {})
-  } else {
+  } else { // 组件事件
     events = el.events || (el.events = {})
   }
 
@@ -109,6 +109,7 @@ export function addHandler (
 
   const handlers = events[name]
   /* istanbul ignore if */
+  // 根据 handlers 对事件做归类，并把回调函数的字符串保留到对应的事件中
   if (Array.isArray(handlers)) {
     important ? handlers.unshift(newHandler) : handlers.push(newHandler)
   } else if (handlers) {

@@ -42,6 +42,7 @@ export function createFnInvoker (fns: Function | Array<Function>): Function {
   return invoker
 }
 
+// 遍历 on 去添加事件监听，遍历 oldOn 去移除事件监听
 export function updateListeners (
   on: Object,
   oldOn: Object,
@@ -74,6 +75,7 @@ export function updateListeners (
       on[name] = old
     }
   }
+  // 添加新事件
   for (name in oldOn) {
     if (isUndef(on[name])) {
       event = normalizeEvent(name)

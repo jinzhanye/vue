@@ -438,56 +438,7 @@ deep 深度遍历访问对象里的所有属性，使它们在setter中收集当
 immediate 创建 watcher 之后立即执行
 sync 不走nextTick?
 
-## Watcher
-- computed watcher
-- render watcher
-- user watcher
 
-expOrFn: computed、render watcher 时 expOrFn 为函数 ，user 时为字符串
-````js
-if (typeof expOrFn === 'function') {
-    this.getter = expOrFn;
-  } else {
-    // xxxxx
-  }
-````
-
-只有 user watcher 的 user 字段为true ，其他两个 watcher 的 user 字段为false
-
-三种 watcher 的 getter 方法
-- user watcher
-
-````js
-export function parsePath (path: string): any {
-  if (bailRE.test(path)) {
-    return
-  }
-  const segments = path.split('.')
-  return function (obj) {// obj 为 vm
-    for (let i = 0; i < segments.length; i++) {
-      if (!obj) return
-      obj = obj[segments[i]] // Dep.target 是当前userWatcher，所以当访问vm.data里的数据时会将当前userWatcher收集为依赖
-    }
-    return obj
-  }
-}
-````
-
-- computed watcher
-
-- render watcher
-updateComponent
-
-dep 字段是 computed 字段专有的，其他两个 watcher 只有 deps、newDeps 数组
-
-nextTick 会执行 flushSchedulerQueue，遍历所有 watcher ,执行它们的 run 方法
-````js
-Watcher.prototype.run = function run () {
-  if (this.active) {
-    this.getAndInvoke(this.cb);
-  }
-};
-````
 
 ## update
 

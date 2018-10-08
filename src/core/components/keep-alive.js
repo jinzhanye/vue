@@ -55,9 +55,9 @@ export default {
   abstract: true,
 
   props: {
-    include: patternTypes,
-    exclude: patternTypes,
-    max: [String, Number]
+    include: patternTypes, // 匹配的组件会被缓存
+    exclude: patternTypes, // 匹配的组件不会被缓存
+    max: [String, Number] // 缓存大小
   },
 
   created () {

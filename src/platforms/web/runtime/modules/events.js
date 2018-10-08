@@ -76,7 +76,7 @@ function updateDOMListeners (oldVnode: VNodeWithData, vnode: VNodeWithData) {
   const on = vnode.data.on || {}
   const oldOn = oldVnode.data.on || {}
   target = vnode.elm
-  normalizeEvents(on)
+  normalizeEvents(on) // 对 v-model 相关的处理
   updateListeners(on, oldOn, add, remove, vnode.context)
   target = undefined
 }

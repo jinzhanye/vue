@@ -80,7 +80,7 @@ function flushSchedulerQueue () {
   const activatedQueue = activatedChildren.slice()
   const updatedQueue = queue.slice() // 拷贝队列供callUpdatedHooks使用
 
-  resetSchedulerState()
+  resetSchedulerState() // 清空 watcher 等待队列
 
   // call component updated and activated hooks
   callActivatedHooks(activatedQueue)
